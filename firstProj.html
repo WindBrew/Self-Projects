@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <style>
+      /*
+      where to start next time? 23-04-2025 [covered]
+      adjust pin text and do the logic for pin match and next would be selection page
+      isolate each section and integrate each later
+      keep the code readable and easy to work with
+      hence making it easier to catch on the next session
+      remember some spare code removed from this sect is added to the spareCode.txt file
+      you can explore and use it as you please \
+
+      */
+      .alignDisplay {
+        display: flex;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        background-color: rgb(34, 31, 31);
+      }
+      .displayScreen {
+        width: 450px;
+        height: 480px;
+        border: 12px solid #ffffff;
+        border-radius: 8px;
+        padding: 10px;
+
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.4),
+          0 4px 20px rgba(255, 105, 180, 0.3);
+        background: linear-gradient(to bottom right, #ffffff, #afafaf, #e6e6e6);
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+
+        position: relative;
+
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+      .numPad {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: 50px 50px 50px 50px;
+        grid-gap: 10px;
+      }
+      button {
+        font-size: 22px;
+        font-weight: bolder;
+
+        border-radius: 8px;
+      }
+      .pinText {
+        height: 100px;
+
+        font-size: 400%;
+        font-weight: bolder;
+
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+      }
+      .newpinText {
+        height: 100px;
+
+        font-size: 400%;
+        font-weight: bolder;
+
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+      }
+      .alignPinText {
+        display: flex;
+        background: linear-gradient(to bottom right, #3a0ca3, #4361ee);
+        border: 10px solid ghostwhite;
+        width: 100%;
+
+        height: 90px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .centerText {
+        display: flex;
+        justify-content: center;
+      }
+      .selectionPage {
+        font-family: monospace;
+
+        height: 90%;
+        padding: 8px;
+        font-size: 20px;
+      }
+      [class*="select-"] {
+        display: flex;
+        outline: none;
+        border: none;
+        background: none;
+        margin-bottom: 4px;
+        margin-left: 12px;
+        background-color: transparent;
+        flex-direction: column;
+      }
+      [class*="select-"]:hover {
+        cursor: pointer;
+        transform: scale(1.1);
+      }
+      .StarterPage button {
+        border-radius: 8px;
+        max-width: 106x;
+      }
+      .centerBut {
+        display: flex;
+        justify-content: center;
+        margin: 10px;
+      }
+      .doneBut {
+        border: none;
+        border-radius: 6px;
+        outline: none;
+        color: burlywood;
+        font-family: monospace;
+      }
+      .dispBox {
+        height: 40px;
+        width: 90%;
+        border: none;
+        background-color: greenyellow;
+        padding: 4px;
+        display: flex;
+        position: relative;
+        align-items: center;
+      }
+      .verticalCent {
+        display: flex;
+        align-items: center;
+      }
+      .horizontalCent {
+        display: flex;
+        justify-content: center;
+      }
+
+      .Exit {
+        border: none;
+        position: absolute;
+        border-radius: 12px;
+        padding: 8px;
+        width: 80px;
+        bottom: 8px;
+        left: 40%;
+      }
+      .Exit:hover {
+        cursor: pointer;
+        background-color: ivory;
+        transform: scale(1.1);
+        border: maroon solid 2px;
+      }
+      .successText {
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      }
+      .Text {
+        padding-left: 30%;
+        font-weight: bolder;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+        font-size: 30px;
+      }
+      .globalNumpad {
+        display: block;
+      }
+      .hidden {
+        display: none;
+      } /* always keep this hidden at the bottom else it wont be able
+       to hide the elements below it as they will override it\
+      thats just how css works */
+    </style>
+
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="select-none leading-relaxed">
+    <div class="alignDisplay">
+      <div class="displayScreen">
+        <div
+          class="loadingPage hidden"
+          style="
+            height: 100%;
+            width: 100%;
+            background-color: black;
+            top: 0;
+            left: 0;
+            position: absolute;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100%;
+            "
+          >
+            <img height="200px" width="80%" src="./media/loadingDark.gif" />
+          </div>
+        </div>
+        <div
+          class="transPage hidden"
+          style="
+            height: 100%;
+            width: 100%;
+            background-color: black;
+            top: 0;
+            left: 0;
+            position: absolute;
+            opacity: 1;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100%;
+            "
+          >
+            <img height="200px" width="80%" src="./media/done.gif" />
+          </div>
+        </div>
+        <div class="starterPage">
+          <h3 class="welcome">Welcome to ReBank ATM</h3>
+          <h5>Insert your card in the slot and Enter your pin below</h5>
+          <div class="alignPinText">
+            <div class="pinText"></div>
+          </div>
+        </div>
+
+        <div class="selectionPage hidden">
+          <div class="centerText" style="font-size: 34px">
+            <h3>Retro Bank</h3>
+          </div>
+          <h4 class="topText">Please select an option</h4>
+          <button class="select-CheckBal" value="balPage">Check Balance</button>
+          <button class="select-Deposit" value="withdepDrawPage">
+            Deposit
+          </button>
+          <button class="select-Withdraw" value="withdepDrawPage">
+            Withdraw
+          </button>
+          <button class="select-ChangePin" value="changePinPage">
+            Change Pin
+          </button>
+        </div>
+
+        <div class="Bal-Page hidden">
+          <div class="accInfo" style="font-size: 18px; font-weight: bolder">
+            Account no : XXXXXXXXXX22092
+          </div>
+          <div class="date" style="font-size: 18px; font-weight: bolder"></div>
+          <div class="spacing" style="height: 50px; width: 100%"></div>
+          <h4 class="BalText"></h4>
+        </div>
+
+        <button class="Exit hidden" style="z-index: 1" value="Exit">
+          Exit
+        </button>
+
+        <div class="change-pin hidden">
+          <h5 class="changePinText">Enter your previous Pin</h5>
+          <div class="alignPinText">
+            <div class="newpinText"></div>
+          </div>
+        </div>
+        <div
+          class="LogText hidden"
+          style="
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial,
+              sans-serif;
+            font-weight: bolder;
+          "
+        >
+          <div class="date" style="font-size: 18px; font-weight: bolder"></div>
+          Your pin has successfully been updated
+        </div>
+
+        <div
+          class="successText hidden"
+          style="
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: antiquewhite;
+            padding: 12px;
+            font-size: 20px;
+          "
+        >
+          <div
+            class="tickTop"
+            style="
+              display: flex;
+              justify-content: center;
+              margin-top: 20px;
+              margin-bottom: 20px;
+            "
+          >
+            <img
+              class="verf"
+              height="80px"
+              width="80px"
+              src="./media/tick.png"
+            />
+          </div>
+          <div
+            class="successfulTran"
+            style="font-size: 18px; font-weight: bolder"
+          ></div>
+
+          <div class="accInfo" style="font-size: 18px; font-weight: bolder">
+            Account no : XXXXXXXX128092
+          </div>
+
+          <div class="date" style="font-size: 18px; font-weight: bolder"></div>
+
+          <div
+            class="successful-NewBal"
+            style="
+              margin-top: 50px;
+              font-size: 20px;
+              font-family: system-ui, -apple-system, BlinkMacSystemFont,
+                'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+                'Helvetica Neue', sans-serif;
+              font-weight: bolder;
+            "
+          ></div>
+          <div class="spacing" style="height: 50px; width: 100%"></div>
+        </div>
+        <div class="timerStamp hidden"></div>
+
+        <div class="Withdrawal-Page hidden">
+          <h4 class="centerText depwithText">
+            Enter the amount that you want to withdraw
+          </h4>
+          <div class="horizontalCent">
+            <div class="dispBox">
+              <h5
+                class="currency"
+                style="
+                  font-family: monospace;
+                  font-size: 22px;
+                  margin-right: 6px;
+                "
+              >
+                $
+              </h5>
+              <h6 class="Text"></h6>
+            </div>
+          </div>
+        </div>
+
+        <div class="globalNumpad">
+          <div class="numPad">
+            <button class="1 shadow-2xl" value="1">1</button>
+            <button class="2 shadow-2xl" value="2">2</button>
+            <button class="3 shadow-2xl" value="3">3</button>
+            <button class="4 shadow-2xl" value="4">4</button>
+            <button class="5 shadow-2xl" value="5">5</button>
+            <button class="6 shadow-2xl" value="6">6</button>
+            <button class="7 shadow-2xl" value="7">7</button>
+            <button class="8 shadow-2xl" value="8">8</button>
+            <button class="9 shadow-2xl" value="9">9</button>
+            <button
+              class="clear shadow-2xl"
+              value="clear"
+              style="color: maroon"
+            >
+              Clear
+            </button>
+
+            <button class="0 shadow-2xl" value="0">0</button
+            ><button class="true shadow-2xl" value="true">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* create the change pin sect which should first ask for the prev pin and then the new pin change and a
+       confirm pin by re-entering if necessary*/
+
+      let Bal = 5000;
+      let countPin = 0;
+      let elapsedTime;
+      let timeStamp = document.querySelector(".timerStamp");
+      let timeLink;
+      function connectTime(h, m, s) {
+        return (timeLink = [
+          h.toString().padStart(2, "0"),
+          m.toString().padStart(2, "0"),
+          s.toString().padStart(2, "0"),
+        ].join(":"));
+      }
+
+      let sec = 50;
+      let min = 1;
+      let hrs = 0;
+
+      startTime = Date.now();
+
+      let pinPass = 1422;
+      let passIn = "";
+      let buttons = document.querySelectorAll("button");
+      let checkPhase = 0;
+      /*let de                                             positSect = document.querySelector(".Deposit-Page");*/
+      var withdepDrawPage = document.querySelector(".Withdrawal-Page");
+      var StarterPage = document.querySelector(".starterPage");
+      var balPage = document.querySelector(".Bal-Page");
+      var changePinPage = document.querySelector(".change-pin");
+      var selectPage = document.querySelector(".selectionPage");
+      var withdep;
+      let amountText = document.querySelector(".Text");
+      let amount = "";
+      let space = document.querySelector(".spacing");
+      let pinText = document.querySelector(".pinText");
+      let activePage = StarterPage;
+      let prevActive;
+      let KeysPad = document.querySelector(".globalNumpad");
+      var successOutput = document.querySelector(".successfulTran");
+      var successBal = document.querySelector(".successful-NewBal");
+      var successText = document.querySelector(".successText");
+      var BalText = document.querySelector(".BalText");
+      let todayDate = document.querySelectorAll(".date");
+      var exit = document.querySelector(".Exit");
+      var changeText = document.querySelector(".changePinText");
+      let pinNewText = document.querySelector(".newpinText");
+      var loading = document.querySelector(".loadingPage").classList;
+      var trans = document.querySelector(".transPage");
+
+      todayDate.forEach((dateSect) => {
+        dateSect.textContent = `Date : ${Date()}`;
+      });
+
+      var clear = (val) => {
+        val.textContent = "";
+        passIn = "";
+        console.log("Length of passIn after clear invoked :", passIn.length);
+        console.trace("here it is");
+        console.trace("maybe here too");
+      };
+      var noExit = () => {
+        exit.classList.add("hidden");
+      };
+      var yesExit = () => {
+        exit.classList.remove("hidden");
+      };
+
+      let noKeys = () => {
+        KeysPad.classList.add("hidden");
+      };
+      let needKeys = () => {
+        KeysPad.classList.remove("hidden");
+      };
+      let needPasscheck = (keyVal) => {
+        if (typeof parseInt(keyVal) == "number" && isNaN(keyVal) == false) {
+          console.log(parseInt(keyVal));
+          console.log("reached in func first cond cleared");
+
+          if (passIn.length < 4) {
+            console.log("reached func len", keyVal);
+            pinNewText.textContent += "*";
+            passIn += keyVal;
+
+            console.log("length : ", passIn.length);
+          } else {
+            console.log("limit of passcode length reached");
+          }
+        } else if (keyVal == "no") {
+          console.log("Pass check terminated");
+        }
+      };
+      let timer = () => {
+        let intervalID = setInterval(() => {
+          connectTime(hrs, min, sec);
+          timeStamp.textContent = `Blocked for : ${timeLink}`;
+
+          sec += 1;
+          if (min >= 2) {
+            clearInterval(intervalID);
+            console.log("Reached Clear interval");
+            timeStamp.classList.add("hidden");
+            StarterPage.classList.remove("hidden");
+            needKeys();
+            countPin = 0;
+            min = 0;
+          }
+
+          if (sec == 60) {
+            min += 1;
+            sec = 0;
+            if (min == 60) {
+              hrs += 1;
+              min = 0;
+            }
+          }
+          KeysPad.style.marginTop = "4%";
+        }, 1000);
+      };
+      function margKey(bool) {
+        KeysPad.style.marginTop = bool ? "4%" : "15%";
+      }
+
+      let prevPass;
+      margKey(true);
+
+      /*this part of the code handles page swapping buttons and transaction(dep/with)
+      needs exit and display bal and change pin code which will be added
+      as you work on it further
+      Conclusion : works numPad and deposit/with with swapping capabilities extendable for addition of new pages*/
+      document.addEventListener("DOMContentLoaded", function () {
+        buttons.forEach((button) => {
+          button.addEventListener("click", function () {
+            if (this.value == "clear") {
+              console.log("Clicked and reached in clear cond");
+              clear(pinText);
+              if (activePage == changePinPage) {
+                clear(pinNewText);
+              }
+            }
+            if (this.value == "Exit") {
+              margKey(true);
+              console.log("exitReached");
+              prevActive = activePage;
+              document.querySelector(".LogText").classList.add("hidden");
+
+              activePage.classList.add("hidden");
+              activePage = StarterPage;
+
+              pinText.textContent = "";
+              passIn = "";
+              activePage.classList.remove("hidden");
+              needKeys();
+            }
+
+            document.querySelector(".dispBox").style =
+              "margin-top : 8%; width:75%;";
+            if (activePage == StarterPage) {
+              console.log("thereStarter");
+              noExit();
+
+              if (
+                typeof parseInt(this.value) == "number" &&
+                isNaN(this.value) == false
+              ) {
+                console.log(parseInt(this.value));
+
+                if (passIn.length < 4) {
+                  pinText.textContent += "*";
+                  passIn += this.value;
+
+                  console.log("length : ", passIn.length);
+                } else {
+                  console.log("limit of passcode length reached");
+                }
+              } else if (this.value == "true") {
+                console.log("clicked true");
+                if (parseInt(passIn) == pinPass) {
+                  console.log("condition for pass pin");
+                  prevActive = StarterPage;
+                  prevActive.classList.add("hidden");
+                  activePage = selectPage;
+                  countPin = 0;
+
+                  noKeys();
+                  loading.remove("hidden");
+                  setTimeout(() => {
+                    loading.add("hidden");
+                    yesExit();
+
+                    if (activePage == selectPage) {
+                      console.log("reahcedWithCondition");
+
+                      activePage.classList.remove("hidden");
+
+                      clear(pinText);
+                      console.log("select length :", passIn.length);
+                    }
+                  }, 1000 * 3);
+                } else if (parseInt(passIn) != pinPass) {
+                  countPin += 1;
+                  console.log("you've been warned");
+                  pinText.textContent = "Invalid!";
+                  pinText.style.color = "red";
+                  setTimeout(() => {
+                    console.log("here it is ig");
+                    clear(pinText);
+                    pinText.style.color = "black";
+                  }, 1000);
+
+                  if (countPin >= 3) {
+                    console.log("its over");
+
+                    timeStamp.classList.remove("hidden");
+                    activePage == timeStamp;
+                    timer();
+                    StarterPage.classList.add("hidden");
+                    noKeys();
+                  }
+                }
+              }
+            } else if (activePage == selectPage) {
+              margKey(false);
+              yesExit();
+              console.log(isNaN(this.value), typeof parseInt(this.value));
+              prevActive = activePage;
+              activePage = window[this.value];
+              console.log(window[this.value]);
+              console.log(this.className);
+              if (this.className == "select-Deposit") {
+                withdep = "Dep";
+              } else if (this.className == "select-Withdraw") {
+                withdep = "With";
+              }
+
+              prevActive.classList.add("hidden");
+              activePage.classList.remove("hidden");
+            }
+            if (activePage == withdepDrawPage) {
+              noExit();
+              console.log(
+                "check if withdepPage and activePage really verify conds:",
+                activePage == withdepDrawPage
+              );
+              needKeys();
+              console.log("inWIthdep");
+              console.log(this.value);
+              if (withdep == "With") {
+                console.log("withdrawlPositive");
+                if (isNaN(parseInt(this.value)) == false) {
+                  if (amount.length < 6 && amount <= Bal) {
+                    amount += this.value;
+                    amountText.textContent += this.value;
+                    console.log(this.value);
+                  }
+                } else if (this.value == "true") {
+                  activePage.classList.add("hidden");
+                  noKeys();
+                  prevActive = activePage;
+                  activePage = successText;
+                  if (parseInt(amount) > Bal) {
+                    loading.remove("hidden");
+                    document.querySelector(".verf").classList.add("hidden");
+                    setTimeout(() => {
+                      loading.add("hidden");
+                      console.log("greater than avail");
+
+                      activePage.classList.remove("hidden");
+                      yesExit();
+
+                      successOutput.textContent = `$ ${amount} cannot be withdrawn Reason : Exceeding available balance `;
+                      successBal.textContent = `Balance : $ ${Bal}`;
+                      amount = "";
+
+                      amountText.textContent = "";
+                    }, 2500);
+                  } else if (parseInt(amount) <= Bal) {
+                    document.querySelector(".verf").classList.remove("hidden");
+                    loading.remove("hidden");
+                    setTimeout(() => {
+                      loading.add("hidden");
+                      trans.classList.remove("hidden");
+                    }, 1500);
+
+                    setTimeout(() => {
+                      trans.classList.add("hidden");
+                      Bal -= parseInt(amount);
+                      console.log("New balance :", Bal);
+
+                      activePage.classList.remove("hidden");
+
+                      successOutput.textContent = `$ ${amount} has been successfully withdrawn from`;
+                      successBal.textContent = `New Balance : $ ${Bal}`;
+
+                      amount = "";
+
+                      amountText.textContent = "";
+                      yesExit();
+                    }, 4500);
+                  }
+                }
+              } else if (withdep == "Dep") {
+                document.querySelector(".depwithText").textContent =
+                  "Enter the amount that you want to deposit";
+                if (isNaN(parseInt(this.value)) == false) {
+                  if (amount.length < 6) {
+                    amount += this.value;
+
+                    amountText.textContent += this.value;
+                    console.log(this.value);
+                  }
+                } else if (this.value == "true") {
+                  document.querySelector(".verf").classList.remove("hidden");
+                  activePage.classList.add("hidden");
+                  console.log("reached");
+                  noKeys();
+                  loading.remove("hidden");
+                  setTimeout(() => {
+                    loading.add("hidden");
+                    trans.classList.remove("hidden");
+                  }, 1500);
+                  setTimeout(() => {
+                    Bal += parseInt(amount);
+                    console.log("New balance :", Bal);
+                    trans.classList.add("hidden");
+
+                    prevActive = activePage;
+                    activePage = successText;
+                    activePage.classList.remove("hidden");
+                    yesExit();
+                    successOutput.textContent = `$ ${amount} has been successfully deposited to`;
+                    successBal.textContent = `New Balance : $ ${Bal}`;
+                    amount = "";
+
+                    amountText.textContent = "";
+                  }, 3000);
+                }
+              }
+            } else if (activePage == balPage) {
+              BalText.textContent = `Account Balance : $${Bal} `;
+              yesExit();
+            } else if (activePage == changePinPage) {
+              prevActive = activePage;
+              console.log(1);
+
+              needKeys();
+              noExit();
+              needPasscheck(this.value);
+              console.log(2);
+
+              if (this.value == "true") {
+                console.log(4);
+                if (parseInt(passIn) != pinPass) {
+                  countPin += 1;
+                  console.log("you've been warned");
+                  pinNewText.style.color = "red";
+                  pinNewText.textContent = "Invalid!";
+
+                  setTimeout(() => {
+                    console.log("here");
+                    clear(pinNewText);
+                    pinText.style.color = "black";
+                    passIn = "";
+                  }, 1000);
+                }
+                if (countPin >= 3) {
+                  console.log("its over");
+
+                  timeStamp.classList.remove("hidden");
+
+                  timer();
+                  activePage.classList.add("hidden");
+                  activePage == timeStamp;
+                  noKeys();
+                }
+                clear(pinNewText);
+
+                console.log(3.3);
+                checkPhase = 1;
+              }
+
+              if (parseInt(passIn) == pinPass && checkPhase != 2) {
+                console.log(3);
+
+                if (checkPhase == 1) {
+                  console.log(5);
+                  changeText.textContent = "";
+                  changeText.textContent = "Enter your new pin";
+                  countPin = 0;
+
+                  if (parseInt(passIn) != pinPass && passIn.length == 4) {
+                    console.log(6);
+                    pinPass = passIn;
+                    if (this.value == "true") {
+                      clear(pinNewText);
+                      changeText.textContent = "";
+                      changeText.textContent = "Re-Enter your pin";
+                    }
+
+                    checkPhase = 2;
+                    console.log(checkPhase);
+                  }
+                } else if (checkPhase == 2) {
+                  console.log(7);
+                  changeText.textContent = "";
+                  changeText.textContent = "Re-Enter your pin";
+                  console.log("Back here from exit");
+
+                  if (parseInt(passIn) == pinPass && this.value == "true") {
+                    activePage.classList.add("hidden");
+                    loading.remove("hidden");
+                    noKeys();
+                    clear(pinNewText);
+                    needPasscheck("no");
+                    console.log("Back here from exit");
+                    setTimeout(() => {
+                      loading.add("hidden");
+                      console.log(8);
+                      console.log("reached it ");
+
+                      document
+                        .querySelector(".LogText")
+                        .classList.remove("hidden");
+                      checkPhase = 3;
+
+                      yesExit();
+                    }, 2500);
+                  }
+
+                  /* where to begin next 28-04-2025 02:08
+                  fix the clear button bug add details
+                  and add final page hide swap the logic
+                  seems to be functional but no code yet
+                  for incorrect inputs hence work on fix
+                  solve edgecases for pin authentication 
+                  */
+                }
+              }
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
