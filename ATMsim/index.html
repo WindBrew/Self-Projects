@@ -567,6 +567,7 @@
                 if (passIn.length < 4) {
                   pinText.textContent += "*";
                   passIn += this.value;
+                  needKeys();
 
                   console.log("length : ", passIn.length);
                 } else {
@@ -647,6 +648,7 @@
               console.log("inWIthdep");
               console.log(this.value);
               if (withdep == "With") {
+                needKeys();
                 console.log("withdrawlPositive");
                 if (isNaN(parseInt(this.value)) == false) {
                   if (amount.length < 6 && amount <= Bal) {
@@ -701,6 +703,7 @@
                   }
                 }
               } else if (withdep == "Dep") {
+                needKeys();
                 document.querySelector(".depwithText").textContent =
                   "Enter the amount that you want to deposit";
                 if (isNaN(parseInt(this.value)) == false) {
@@ -741,6 +744,7 @@
               BalText.textContent = `Account Balance : $${Bal} `;
               yesExit();
             } else if (activePage == changePinPage) {
+              needKeys();
               prevActive = activePage;
               if (checkPhase === 0) {
                 changeText.textContent = "Enter your previous pin";
