@@ -455,6 +455,7 @@
         console.log("Length of passIn after clear invoked :", passIn.length);
         console.trace("here it is");
         console.trace("maybe here too");
+        return;
       };
       var noExit = () => {
         exit.classList.add("hidden");
@@ -533,6 +534,7 @@
               clear(pinText);
               if (activePage == changePinPage) {
                 clear(pinNewText);
+                return;
               }
             }
             if (this.value == "Exit") {
@@ -592,6 +594,7 @@
 
                       clear(pinText);
                       console.log("select length :", passIn.length);
+                      return;
                     }
                   }, 1000 * 3);
                 } else if (parseInt(passIn) != pinPass) {
@@ -603,6 +606,7 @@
                     console.log("here it is ig");
                     clear(pinText);
                     pinText.style.color = "black";
+                    return;
                   }, 1000);
 
                   if (countPin >= 3) {
@@ -738,99 +742,100 @@
               yesExit();
             } else if (activePage == changePinPage) {
               prevActive = activePage;
-              console.log(1);
+              if (checkPhase === 0) {
+                changeText.textContent = "Enter your previous pin";
+              }
 
               needKeys();
               noExit();
-              needPasscheck(this.value);
-              console.log(2);
 
-              if (this.value == "true") {
-                console.log(4);
-                if (parseInt(passIn) != pinPass) {
-                  countPin += 1;
-                  console.log("you've been warned");
-                  pinNewText.style.color = "red";
-                  pinNewText.textContent = "Invalid!";
-
-                  setTimeout(() => {
-                    console.log("here");
-                    clear(pinNewText);
-                    pinText.style.color = "black";
-                    passIn = "";
-                  }, 1000);
-                }
-                if (countPin >= 3) {
-                  console.log("its over");
-
-                  timeStamp.classList.remove("hidden");
-
-                  timer();
-                  activePage.classList.add("hidden");
-                  activePage == timeStamp;
-                  noKeys();
-                }
+              // HandlE clear
+              if (this.value == "clear") {
                 clear(pinNewText);
-
-                console.log(3.3);
-                checkPhase = 1;
+                return;
               }
 
-              if (parseInt(passIn) == pinPass && checkPhase != 2) {
-                console.log(3);
+              if (!isNaN(this.value)) {
+                needPasscheck(this.value);
+                return;
+              }
 
-                if (checkPhase == 1) {
-                  console.log(5);
-                  changeText.textContent = "";
-                  changeText.textContent = "Enter your new pin";
-                  countPin = 0;
+              // HANDLE OK BUTTON
+              if (this.value == "true") {
+                // PHASE 0: VERIFY OLD PIN
+                if (checkPhase === 0) {
+                  changeText.textContent = "Enter your previous pin";
+                  if (passIn.length !== 4) return;
 
-                  if (parseInt(passIn) != pinPass && passIn.length == 4) {
-                    console.log(6);
-                    pinPass = passIn;
-                    if (this.value == "true") {
+                  if (parseInt(passIn) !== pinPass) {
+                    countPin++;
+                    pinNewText.textContent = "Incorrect";
+
+                    setTimeout(() => {
                       clear(pinNewText);
-                      changeText.textContent = "";
-                      changeText.textContent = "Re-Enter your pin";
+                    }, 1000);
+
+                    if (countPin >= 3) {
+                      timeStamp.classList.remove("hidden");
+                      timer();
+                      activePage.classList.add("hidden");
+                      noKeys();
                     }
 
-                    checkPhase = 2;
-                    console.log(checkPhase);
+                    return;
                   }
-                } else if (checkPhase == 2) {
-                  console.log(7);
-                  changeText.textContent = "";
-                  changeText.textContent = "Re-Enter your pin";
-                  console.log("Back here from exit");
 
-                  if (parseInt(passIn) == pinPass && this.value == "true") {
-                    activePage.classList.add("hidden");
+                  // correct old pin
+                  countPin = 0;
+                  clear(pinNewText);
+                  changeText.textContent = "Enter your new pin";
+                  checkPhase = 1;
+                  return;
+                }
+
+                // Phase 1: ENTER NEW PIN
+                if (checkPhase === 1) {
+                  if (passIn.length !== 4) return;
+
+                  pinPass = parseInt(passIn);
+                  clear(pinNewText);
+                  changeText.textContent = "Re-Enter your pin";
+                  checkPhase = 2;
+                  return;
+                }
+
+                // PHase 2: CONFIRM NEW PIN
+                if (checkPhase === 2) {
+                  if (passIn.length !== 4) return;
+
+                  if (parseInt(passIn) === pinPass) {
+                    clear(pinNewText);
                     loading.remove("hidden");
                     noKeys();
-                    clear(pinNewText);
-                    needPasscheck("no");
-                    console.log("Back here from exit");
+
                     setTimeout(() => {
                       loading.add("hidden");
-                      console.log(8);
-                      console.log("reached it ");
-
                       document
                         .querySelector(".LogText")
                         .classList.remove("hidden");
-                      checkPhase = 3;
-
+                      document
+                        .querySelector(".change-pin")
+                        .classList.add("hidden");
                       yesExit();
-                    }, 2500);
-                  }
+                    }, 2000);
 
-                  /* where to begin next 28-04-2025 02:08
-                  fix the clear button bug add details
-                  and add final page hide swap the logic
-                  seems to be functional but no code yet
-                  for incorrect inputs hence work on fix
-                  solve edgecases for pin authentication 
-                  */
+                    checkPhase = 0;
+                    return;
+                  } else {
+                    pinNewText.textContent = "mismatch";
+                    setTimeout(() => {
+                      clear(pinNewText);
+                    }, 1000);
+
+                    changeText.textContent = "Enter your new pin";
+                    checkPhase = 1;
+                    return;
+                  }
                 }
               }
             }
